@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<!--
+###################################################
+##Filter: Fading Channel 
+###################################################
+ -->
+<block>
+	<name>Fading Channel Model</name>
+	<key>channels_fading_channel_model</key>
+	<import>from gnuradio.channels import rayleigh_model</import>
+	<import>from gnuradio.channels import rician_model</import>
+	<import>from gnuradio.channels import fading_profile</import>
+   	<make>#if $profile() == 'cust'
+		      #if $mtype() == 'rayleigh'
+rayleigh_model.rayleigh_model($samprate,
+               $max_doppler, $pdelay, $pgain, $seed,
+		       $ntaps, $dspectrum, $dspec_out) 
+		      #else
+rician_model.rician_model($samprate,
+             $kfactor, $los_dop, $los_phase,
+		     $max_doppler, $pdelay, $pgain, $seed,
+		     $ntaps, $dspectrum, $dspec_out)
+		      #end if
+		  #else 
+fading_profile.$(profile)($samprate,
+		    $max_doppler,
+			$ntaps,
+			$dspec_out)
+		  #end if
+	</make>
+	<param>
+		<name>Sample Rate</name>
+		<key>samprate</key>
+		<value>samp_rate</value>
+		<type>real</type>
+	</param>
+	<param>
+		<name>Maximum Doppler</name>
+		<key>max_doppler</key>
+		<value>100</value>
+		<type>real</type>
+	</param>
+	<param>
+		<name>Profile</name>
+		<key>profile</key>
+		<type>enum</type>
+		<option>
+			<name>Custom</name>
+			<key>cust</key>
+			<opt>hstat:</opt>
+		</option>
+		<option>
+			<name>COST207_RAx4</name>
+			<key>COST207_RAx4</key>
+			<opt>hstat:all</opt>
+		</option>
+		<option>
+			<name>COST207_RAx6</name>
+			<key>COST207_RAx6</key>
+			<opt>hstat:all</opt>
+		</option>
+	</param>
+	<param>
+		<name>Model</name>
+		<key>mtype</key>
+		<type>enum</type>
+		<hide>$profile.hstat</hide>
+		<option>
+			<name>Rayleigh</name>
+			<key>rayleigh</key>
+			<opt>hstat:all</opt>
+		</option>
+		<option>
+			<name>Rician</name>
+			<key>rician</key>
+			<opt>hstat:</opt>
+		</option>
+	</param>
+	<param>
+		<name>K factor</name>
+		<key>kfactor</key>
+		<value>[1]</value>
+		<type>real_vector</type>
+		<hide>#if $profile.hstat == '' then $mtype.hstat else 'all'#</hide>
+	</param>
+	<param>
+		<name>LOS doppler</name>
+		<key>los_dop</key>
+		<value>[0]</value>
+		<type>real_vector</type>
+		<hide>#if $profile.hstat == '' then $mtype.hstat else 'all'#</hide>
+	</param>
+	<param>
+		<name>LOS initial phase</name>
+		<key>los_phase</key>
+		<value>[0]</value>
+		<type>real_vector</type>
+		<hide>#if $profile.hstat == '' then $mtype.hstat else 'all'#</hide>
+	</param>
+	<param>
+		<name>Path Delay</name>
+		<key>pdelay</key>
+		<value>[1]</value>
+		<type>real_vector</type>
+		<hide>$profile.hstat</hide>
+	</param>
+	<param>
+		<name>Path Gain in dB</name>
+		<key>pgain</key>
+		<value>[1]</value>
+		<type>real_vector</type>
+		<hide>$profile.hstat</hide>
+	</param>
+	<param>
+		<name>Seed</name>
+		<key>seed</key>
+		<value>100</value>
+		<type>int</type>
+		<hide>$profile.hstat</hide>
+	</param>
+	<param>
+		<name>Tap Length</name>
+		<key>ntaps</key>
+		<value>7</value>
+		<type>int</type>
+	</param>
+	<param>
+		<name>Doppler Spectrum</name>
+		<key>dspectrum</key>
+		<value>gauss(1.2)</value>
+		<type>string</type>
+		<hide>$profile.hstat</hide>
+	</param>
+	<param>
+		<name>Delay Spectrum enable</name>
+		<key>dspec_out</key>
+		<value>False</value>
+		<type>bool</type>
+	</param>
+	<sink>
+		<name>in</name>
+		<type>complex</type>
+	</sink>
+	<source>
+		<name>out</name>
+		<type>complex</type>
+		<nports>len($pdelay)*int($dspec_out)+1 </nports>
+	</source>
+	<doc>
+	Fading channel block which can simulate Rayleigh and Rician channel
+	</doc>
+</block>

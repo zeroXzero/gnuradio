@@ -23,6 +23,11 @@ include(GrPython)
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
+	doppler_firdes.py
+	fading_profile.py
+	fading_tdl.py
+	rayleigh_model.py
+	rician_model.py
     DESTINATION ${GR_PYTHON_DIR}/gnuradio/channels
     COMPONENT "channels_python"
 )
